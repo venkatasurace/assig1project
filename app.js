@@ -106,59 +106,5 @@ app.get("/todos/:todoId/", async (request, response) => {
   response.send(todo);
 });
 
-app.post("/todos/", async (request, response) => {
-  const { id, todo, priority, status } = request.body;
-  const postTodoQuery = `
-  INSERT INTO
-    todo (id, todo, priority, status)
-  VALUES
-    (${id}, '${todo}', '${priority}', '${status}');`;
-  await database.run(postTodoQuery);
-  response.send("Todo Successfully Added");
-});
-
-app.put("/todos/:todoId/", async (request, response) => {
-  const { todoId } = request.params;
-  let updateColumn = "";
-  const requestBody = request.body;
-  switch (true) {
-    case requestBody.status !== undefined:
-      updateColumn = "Status";
-      break;
-    case requestBody.priority !== undefined:
-      updateColumn = "Priority";
-      break;
-    case requestBody.todo !== undefined:
-      updateColumn = "Todo";
-      break;
-  }
-  const previousTodoQuery = `
-    SELECT
-      *
-    FROM
-      todo
-    WHERE 
-      id = ${todoId};`;
-  const previousTodo = await database.get(previousTodoQuery);
-
-  const {
-    todo = previousTodo.todo,
-    priority = previousTodo.priority,
-    status = previousTodo.status,
-  } = request.body;
-
-  const updateTodoQuery = `
-    UPDATE
-      todo
-    SET
-      todo='${todo}',
-      priority='${priority}',
-      status='${status}'
-    WHERE
-      id = ${todoId};`;
-
-  await database.run(updateTodoQuery);
-  response.send(`${updateColumn} Updated`);
-});
 
 module.exports = app;
